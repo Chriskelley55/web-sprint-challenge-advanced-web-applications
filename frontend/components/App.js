@@ -30,10 +30,8 @@ export default function App() {
     // In any case, we should redirect the browser back to the login screen,
     // using the helper above.
     
-    if(localStorage.removeItem('token')){
+    window.localStorage.removeItem('token') 
     setMessage('Goodbye!');
-    localStorage.removeItem('token');
-    }
     redirectToLogin();
   }
 
@@ -118,19 +116,20 @@ export default function App() {
     // ✨ implement
     // You got this!
     setMessage('')
-    console.log('Putting', article_id, article)
+    setSpinnerOn(true);
 
     axiosWithAuth()
-      .put(`http://localhost:9000/api/articles/${article_id}`, article)
+      .put(`http://localhost:9000/api/articles/${article_id}`, {title: article.title, text: article.text, topic: article.topic})
       .then(resp => {
-        console.log(resp)
         setMessage(resp.data.message)
         setArticles(articles.map(article => article.article_id !== article_id ? article : resp.data.article))
       })
       .catch(error => {
         console.log(error)
       })
-
+      .finally(() => {
+        setSpinnerOn(false);
+      })
       setCurrentArticleId()
   }
 
