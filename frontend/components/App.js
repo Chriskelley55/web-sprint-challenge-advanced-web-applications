@@ -20,8 +20,8 @@ export default function App() {
 
   // ✨ Research `useNavigate` in React Router v.6
   const navigate = useNavigate()
-  const redirectToLogin = () => { navigate('/')/* ✨ implement */ }
-  const redirectToArticles = () => { navigate('/articles')/* ✨ implement */ }
+  const redirectToLogin = () => { navigate('/')}
+  const redirectToArticles = () => { navigate('/articles')}
 
   const logout = () => {
     // ✨ implement
@@ -35,14 +35,15 @@ export default function App() {
     redirectToLogin();
   }
 
-  const login = ({ username, password }) => {
+  const login = (values) => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
     // and launch a request to the proper endpoint.
     // On success, we should set the token to local storage in a 'token' key,
     // put the server success message in its proper state, and redirect
     // to the Articles screen. Don't forget to turn off the spinner!
-    axios.post(loginURL, {username, password})
+    console.log(values)
+    axios.post(loginURL, values)
     .then(resp => {
       console.log('login axios resp:', resp);
       localStorage.setItem('token', resp.data.token)
