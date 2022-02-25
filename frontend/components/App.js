@@ -22,7 +22,7 @@ export default function App() {
   const navigate = useNavigate()
   const redirectToLogin = () => { navigate('/')}
   const redirectToArticles = () => { navigate('/articles')}
-
+  
   const logout = () => {
     // ✨ implement
     // If a token is in local storage it should be removed,
@@ -30,27 +30,35 @@ export default function App() {
     // In any case, we should redirect the browser back to the login screen,
     // using the helper above.
     
-      localStorage.removeItem('token');
-    setMessage('Goodbye!')
+    if(localStorage.removeItem('token')){
+    setMessage('Goodbye!');
+    localStorage.removeItem('token');
+    }
     redirectToLogin();
   }
 
-  const login = (values) => {
+  const login = ({username, password}) => {
     // ✨ implement
     // We should flush the message state, turn on the spinner
     // and launch a request to the proper endpoint.
     // On success, we should set the token to local storage in a 'token' key,
     // put the server success message in its proper state, and redirect
     // to the Articles screen. Don't forget to turn off the spinner!
-    console.log(values)
-    axios.post(loginURL, values)
-    .then(resp => {
-      console.log('login axios resp:', resp);
+    // flush()
+    setMessage('')
+    setSpinnerOn(true)
+   
+    axios.post(loginUrl, {username, password})
+    .then(resp => {  
       localStorage.setItem('token', resp.data.token)
-      navigate('/articles');
+      setMessage(resp.data.message)
+      redirectToArticles()
     })
     .catch(err => {
       console.log(err)
+    })
+    .finally(() => {
+      setSpinnerOn(false)
     })
   }
 
@@ -63,11 +71,13 @@ export default function App() {
     // If something goes wrong, check the status of the response:
     // if it's a 401 the token might have gone bad, and we should redirect to login.
     // Don't forget to turn off the spinner!
-    setMessage('');
-    setSpinnerOn(true);
+    setMessage('')
+    setSpinnerOn(true)
+
     axiosWithAuth().get(articlesUrl)
     .then(resp => {
-      console.log('getArticles axiosWithAuth resp: ',resp)
+      console.log(resp)
+      
       setMessage(resp.data.message)
       setArticles(resp.data.articles)
     })
@@ -84,15 +94,67 @@ export default function App() {
     // The flow is very similar to the `getArticles` function.
     // You'll know what to do! Use log statements or breakpoints
     // to inspect the response from the server.
+    setMessage('')
+    console.log('Posting')
+
+    axiosWithAuth()
+      .post(articlesUrl, article)
+      .then(resp => {
+        console.log(resp)
+        
+        setArticles(articles.concat(resp.data.article));
+        setMessage(resp.data.message)
+
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .finally(() => {
+        setSpinnerOn(false)
+      })
   }
 
   const updateArticle = ({ article_id, article }) => {
     // ✨ implement
     // You got this!
+    setMessage('')
+    console.log('Putting', article_id, article)
+
+    axiosWithAuth()
+      .put(`http://localhost:9000/api/articles/${article_id}`, article)
+      .then(resp => {
+        console.log(resp)
+        setMessage(resp.data.message)
+        setArticles(articles.map(article => article.article_id !== article_id ? article : resp.data.article))
+      })
+      .catch(error => {
+        console.log(error)
+      })
+
+      setCurrentArticleId()
   }
 
   const deleteArticle = article_id => {
     // ✨ implement
+    setMessage('')
+
+    axiosWithAuth()
+      .delete(`http://localhost:9000/api/articles/${article_id}`)
+      .then(resp => {
+        console.log(resp)
+
+        setMessage(resp.data.message)
+        
+        setArticles(articles.filter(articles => {
+          return articles.article_id != article_id
+        }))
+      })
+      .catch(error => {
+        console.log(error)
+      })
+      .finally(() => {
+        setSpinnerOn(false)
+      })
   }
 
   return (
