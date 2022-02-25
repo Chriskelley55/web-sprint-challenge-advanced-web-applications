@@ -100,19 +100,19 @@ export default function App() {
     axiosWithAuth()
       .post(articlesUrl, article)
       .then(resp => {
-        console.log(resp)
-        
-        setArticles(articles.concat(resp.data.article));
+        setArticles([
+          ...articles,
+          resp.data.article
+        ])
         setMessage(resp.data.message)
-
       })
       .catch(error => {
-        console.log(error)
+        console.log(error);
       })
       .finally(() => {
-        setSpinnerOn(false)
+        setSpinnerOn(false);
       })
-  }
+    }
 
   const updateArticle = ({ article_id, article }) => {
     // ✨ implement
@@ -173,7 +173,8 @@ export default function App() {
           <Route path="/" element={<LoginForm login={login} />} />
           <Route path="articles" element={
             <>
-              <ArticleForm postArticle={postArticle} updateArticle={updateArticle} setCurrentArticleId={setCurrentArticleId} currentArticleId={currentArticleId}/>
+              <ArticleForm postArticle={postArticle} updateArticle={updateArticle} setCurrentArticleId={setCurrentArticleId} currentArticleId={currentArticleId} currentArticle={articles.find((art) => {
+                return art.article_id == currentArticleId})}/>
               <Articles articles={articles} getArticles={getArticles} deleteArticle={deleteArticle} setCurrentArticleId={setCurrentArticleId}/>
             </>
           } />
